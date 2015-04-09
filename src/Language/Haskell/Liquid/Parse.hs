@@ -168,8 +168,8 @@ bareTypeP :: Parser BareType
 bareTypeP
   =  try bareAllP
  <|> bareAllS
- <|> bareAllExprP
- <|> bareExistsP
+--  <|> bareAllExprP
+--  <|> bareExistsP
  <|> try bareConstraintP
  <|> try bareFunP
  <|> bareAtomP (refBindP bindP)
@@ -236,13 +236,6 @@ bareAtomNoAppP
   =  refP bbaseNoAppP 
  <|> try (dummyP (bbaseNoAppP <* spaces))
 
-bareAllExprP 
-  = do reserved "forall"
-       zs <- brackets $ sepBy1 exBindP comma 
-       dot
-       t  <- bareTypeP
-       return $ foldr (uncurry RAllE) t zs
- 
 bareConstraintP
   = do ct   <- braces constraintP
        t    <- bareTypeP 
@@ -265,18 +258,6 @@ constraintEnvP
 
 rrTy ct t = RRTy [(dummySymbol, ct)] mempty OCons t 
 
-bareExistsP 
-  = do reserved "exists"
-       zs <- brackets $ sepBy1 exBindP comma 
-       dot
-       t  <- bareTypeP
-       return $ foldr (uncurry REx) t zs
-     
-exBindP 
-  = do b <- binderP <* colon
-       t <- bareArgP b
-       return (b,t)
-  
 bareAllS
   = do reserved "forall"
        ss <- (angles $ sepBy1 symbolP comma)
